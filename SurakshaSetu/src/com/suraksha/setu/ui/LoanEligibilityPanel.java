@@ -115,6 +115,10 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
         appTable.getTableHeader().setBackground(new Color(15, 23, 42));
         appTable.getTableHeader().setForeground(new Color(99, 179, 237));
         appTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        ToolTipManager.sharedInstance().unregisterComponent(appTable);
+        if (appTable.getTableHeader() != null) {
+            ToolTipManager.sharedInstance().unregisterComponent(appTable.getTableHeader());
+        }
 
         JScrollPane scroll = new JScrollPane(appTable);
         scroll.getViewport().setBackground(new Color(30, 41, 59));

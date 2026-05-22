@@ -134,6 +134,10 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
             }
         };
         styleTable(historyTable);
+        ToolTipManager.sharedInstance().unregisterComponent(historyTable);
+        if (historyTable.getTableHeader() != null) {
+            ToolTipManager.sharedInstance().unregisterComponent(historyTable.getTableHeader());
+        }
         JScrollPane scroll = new JScrollPane(historyTable);
         scroll.setBackground(new Color(15, 23, 42));
         scroll.setBorder(BorderFactory.createLineBorder(new Color(51, 65, 85)));

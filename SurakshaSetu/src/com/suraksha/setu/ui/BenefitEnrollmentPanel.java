@@ -66,6 +66,10 @@ public class BenefitEnrollmentPanel extends JPanel implements MainFrame.Refresha
             }
         };
         styleTable(availTable);
+        ToolTipManager.sharedInstance().unregisterComponent(availTable);
+        if (availTable.getTableHeader() != null) {
+            ToolTipManager.sharedInstance().unregisterComponent(availTable.getTableHeader());
+        }
         availablePanel.add(new JScrollPane(availTable), BorderLayout.CENTER);
 
         // --- Enrolled Schemes ---
@@ -91,6 +95,10 @@ public class BenefitEnrollmentPanel extends JPanel implements MainFrame.Refresha
             }
         };
         styleTable(enrollTable);
+        ToolTipManager.sharedInstance().unregisterComponent(enrollTable);
+        if (enrollTable.getTableHeader() != null) {
+            ToolTipManager.sharedInstance().unregisterComponent(enrollTable.getTableHeader());
+        }
         enrolledPanel.add(new JScrollPane(enrollTable), BorderLayout.CENTER);
 
         mainContent.add(availablePanel);

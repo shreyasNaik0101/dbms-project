@@ -66,6 +66,10 @@ public class FinancialHubPanel extends JPanel implements MainFrame.Refreshable {
             }
         };
         styleTable(table);
+        ToolTipManager.sharedInstance().unregisterComponent(table);
+        if (table.getTableHeader() != null) {
+            ToolTipManager.sharedInstance().unregisterComponent(table.getTableHeader());
+        }
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.getViewport().setBackground(new Color(30, 41, 59));

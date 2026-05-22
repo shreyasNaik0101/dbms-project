@@ -54,6 +54,10 @@ public class AuditTrailDialog extends JDialog {
         table.getTableHeader().setBackground(new Color(15, 23, 42));
         table.getTableHeader().setForeground(new Color(99, 179, 237));
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        ToolTipManager.sharedInstance().unregisterComponent(table);
+        if (table.getTableHeader() != null) {
+            ToolTipManager.sharedInstance().unregisterComponent(table.getTableHeader());
+        }
 
         JScrollPane scroll = new JScrollPane(table);
         scroll.getViewport().setBackground(new Color(30, 41, 59));
