@@ -17,7 +17,7 @@ echo [2/3] Finding source files...
 dir /s /b "%SRC_DIR%\*.java" > "%PROJECT_DIR%sources.txt"
 
 echo [3/3] Compiling...
-javac -encoding UTF-8 -cp "%JAR%" -d "%OUT_DIR%" @"%PROJECT_DIR%sources.txt"
+javac --release 11 -encoding UTF-8 -cp "%JAR%" -d "%OUT_DIR%" @"%PROJECT_DIR%sources.txt"
 
 if %ERRORLEVEL% EQU 0 (
     echo.
