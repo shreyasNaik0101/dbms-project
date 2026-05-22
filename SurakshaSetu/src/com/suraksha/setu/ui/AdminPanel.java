@@ -51,7 +51,7 @@ public class AdminPanel extends JPanel implements MainFrame.Refreshable {
         searchField.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(new Color(71, 85, 105)),
             BorderFactory.createEmptyBorder(4, 8, 4, 8)));
-        searchField.setToolTipText("Search by worker name");
+
 
         JButton searchBtn    = toolBtn("🔍 Search",      new Color(59, 130, 246));
         JButton refreshBtn   = toolBtn("🔄 Refresh",     new Color(71, 85, 105));
