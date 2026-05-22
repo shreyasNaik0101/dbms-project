@@ -147,11 +147,15 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
         histHeader.setForeground(new Color(99, 179, 237));
         histHeader.setBorder(BorderFactory.createEmptyBorder(12, 0, 8, 0));
 
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
+        topPanel.add(formCard, BorderLayout.NORTH);
+        topPanel.add(histHeader, BorderLayout.CENTER);
+
         JPanel center = new JPanel(new BorderLayout(0, 8));
         center.setOpaque(false);
-        center.add(formCard, BorderLayout.NORTH);
-        center.add(histHeader, BorderLayout.CENTER);
-        center.add(scroll, BorderLayout.SOUTH);
+        center.add(topPanel, BorderLayout.NORTH);
+        center.add(scroll, BorderLayout.CENTER);
 
         add(center, BorderLayout.CENTER);
     }

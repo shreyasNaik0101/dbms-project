@@ -139,8 +139,8 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
         south.add(appHeader, BorderLayout.NORTH);
         south.add(scroll, BorderLayout.CENTER);
 
-        add(center, BorderLayout.CENTER);
-        add(south, BorderLayout.SOUTH);
+        add(center, BorderLayout.NORTH);
+        add(south, BorderLayout.CENTER);
 
         loadApplications();
     }

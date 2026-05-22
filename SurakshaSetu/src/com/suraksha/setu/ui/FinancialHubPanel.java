@@ -80,11 +80,15 @@ public class FinancialHubPanel extends JPanel implements MainFrame.Refreshable {
         tableHeader.setForeground(new Color(99, 179, 237));
         tableHeader.setBorder(BorderFactory.createEmptyBorder(12, 0, 8, 0));
 
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setOpaque(false);
+        topPanel.add(statsPanel, BorderLayout.NORTH);
+        topPanel.add(tableHeader, BorderLayout.CENTER);
+
         JPanel centerPanel = new JPanel(new BorderLayout());
         centerPanel.setOpaque(false);
-        centerPanel.add(statsPanel, BorderLayout.NORTH);
-        centerPanel.add(tableHeader, BorderLayout.CENTER);
-        centerPanel.add(scroll, BorderLayout.SOUTH);
+        centerPanel.add(topPanel, BorderLayout.NORTH);
+        centerPanel.add(scroll, BorderLayout.CENTER);
 
         add(centerPanel, BorderLayout.CENTER);
 
