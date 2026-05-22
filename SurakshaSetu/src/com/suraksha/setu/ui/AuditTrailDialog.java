@@ -31,7 +31,21 @@ public class AuditTrailDialog extends JDialog {
             public boolean isCellEditable(int r, int c) { return false; }
         };
 
-        JTable table = new JTable(model);
+        JTable table = new JTable(model) {
+            @Override
+            public String getToolTipText(java.awt.event.MouseEvent e) {
+                return null;
+            }
+            @Override
+            protected javax.swing.table.JTableHeader createDefaultTableHeader() {
+                return new javax.swing.table.JTableHeader(columnModel) {
+                    @Override
+                    public String getToolTipText(java.awt.event.MouseEvent e) {
+                        return null;
+                    }
+                };
+            }
+        };
         table.setBackground(new Color(30, 41, 59));
         table.setForeground(new Color(226, 232, 240));
         table.setGridColor(new Color(51, 65, 85));

@@ -50,7 +50,21 @@ public class FinancialHubPanel extends JPanel implements MainFrame.Refreshable {
             @Override
             public boolean isCellEditable(int r, int c) { return false; }
         };
-        JTable table = new JTable(tableModel);
+        JTable table = new JTable(tableModel) {
+            @Override
+            public String getToolTipText(java.awt.event.MouseEvent e) {
+                return null;
+            }
+            @Override
+            protected javax.swing.table.JTableHeader createDefaultTableHeader() {
+                return new javax.swing.table.JTableHeader(columnModel) {
+                    @Override
+                    public String getToolTipText(java.awt.event.MouseEvent e) {
+                        return null;
+                    }
+                };
+            }
+        };
         styleTable(table);
 
         JScrollPane scroll = new JScrollPane(table);

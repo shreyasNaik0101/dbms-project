@@ -50,7 +50,21 @@ public class BenefitEnrollmentPanel extends JPanel implements MainFrame.Refresha
                 return column == 4; // Only action column is "editable" (for buttons)
             }
         };
-        JTable availTable = new JTable(availableModel);
+        JTable availTable = new JTable(availableModel) {
+            @Override
+            public String getToolTipText(java.awt.event.MouseEvent e) {
+                return null;
+            }
+            @Override
+            protected javax.swing.table.JTableHeader createDefaultTableHeader() {
+                return new javax.swing.table.JTableHeader(columnModel) {
+                    @Override
+                    public String getToolTipText(java.awt.event.MouseEvent e) {
+                        return null;
+                    }
+                };
+            }
+        };
         styleTable(availTable);
         availablePanel.add(new JScrollPane(availTable), BorderLayout.CENTER);
 
@@ -61,7 +75,21 @@ public class BenefitEnrollmentPanel extends JPanel implements MainFrame.Refresha
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
         };
-        JTable enrollTable = new JTable(enrolledModel);
+        JTable enrollTable = new JTable(enrolledModel) {
+            @Override
+            public String getToolTipText(java.awt.event.MouseEvent e) {
+                return null;
+            }
+            @Override
+            protected javax.swing.table.JTableHeader createDefaultTableHeader() {
+                return new javax.swing.table.JTableHeader(columnModel) {
+                    @Override
+                    public String getToolTipText(java.awt.event.MouseEvent e) {
+                        return null;
+                    }
+                };
+            }
+        };
         styleTable(enrollTable);
         enrolledPanel.add(new JScrollPane(enrollTable), BorderLayout.CENTER);
 

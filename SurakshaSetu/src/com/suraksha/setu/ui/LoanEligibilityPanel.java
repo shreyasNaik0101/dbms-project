@@ -92,7 +92,21 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
         tableModel = new DefaultTableModel(cols, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
         };
-        JTable appTable = new JTable(tableModel);
+        JTable appTable = new JTable(tableModel) {
+            @Override
+            public String getToolTipText(java.awt.event.MouseEvent e) {
+                return null;
+            }
+            @Override
+            protected javax.swing.table.JTableHeader createDefaultTableHeader() {
+                return new javax.swing.table.JTableHeader(columnModel) {
+                    @Override
+                    public String getToolTipText(java.awt.event.MouseEvent e) {
+                        return null;
+                    }
+                };
+            }
+        };
         appTable.setBackground(new Color(30, 41, 59));
         appTable.setForeground(new Color(226, 232, 240));
         appTable.setGridColor(new Color(51, 65, 85));

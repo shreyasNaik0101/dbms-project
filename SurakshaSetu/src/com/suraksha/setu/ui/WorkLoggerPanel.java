@@ -118,7 +118,21 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
         tableModel = new javax.swing.table.DefaultTableModel(cols, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
         };
-        historyTable = new JTable(tableModel);
+        historyTable = new JTable(tableModel) {
+            @Override
+            public String getToolTipText(java.awt.event.MouseEvent e) {
+                return null;
+            }
+            @Override
+            protected javax.swing.table.JTableHeader createDefaultTableHeader() {
+                return new javax.swing.table.JTableHeader(columnModel) {
+                    @Override
+                    public String getToolTipText(java.awt.event.MouseEvent e) {
+                        return null;
+                    }
+                };
+            }
+        };
         styleTable(historyTable);
         JScrollPane scroll = new JScrollPane(historyTable);
         scroll.setBackground(new Color(15, 23, 42));
