@@ -21,6 +21,10 @@ public class LoginFrame extends JFrame {
 
     public LoginFrame() {
         super("SurakshaSetu — Login");
+        
+        // Globally disable tooltips
+        ToolTipManager.sharedInstance().setEnabled(false);
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(420, 520);
         setLocationRelativeTo(null);
@@ -147,9 +151,8 @@ public class LoginFrame extends JFrame {
     }
 
     private void openRegister() {
-        JOptionPane.showMessageDialog(this,
-            "Registration available in the Admin Panel.\nContact your admin to create an account.",
-            "Registration", JOptionPane.INFORMATION_MESSAGE);
+        RegisterWorkerDialog dialog = new RegisterWorkerDialog(this);
+        dialog.setVisible(true);
     }
 
     // ── UI Helper Methods ────────────────────────────────────────────────────

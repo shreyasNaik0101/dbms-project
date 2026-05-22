@@ -35,8 +35,15 @@ public class SurakshasetuApp {
         UIManager.put("text",                new java.awt.Color(226, 232, 240));
         UIManager.put("nimbusSelectionBackground", new java.awt.Color(59, 130, 246));
 
+        // Globally disable tooltips — Nimbus L&F auto-generates them from
+        // component text (tab titles, labels, etc.) which clutters the UI.
+        ToolTipManager.sharedInstance().setEnabled(false);
+
         // Launch on Event Dispatch Thread
         SwingUtilities.invokeLater(() -> {
+            // Re-assert global tooltip disable on Event Dispatch Thread (EDT)
+            ToolTipManager.sharedInstance().setEnabled(false);
+
             System.out.println("=================================================");
             System.out.println("   SurakshaSetu — Digital Identity Platform");
             System.out.println("   Gig Worker Trust Management System v1.0");

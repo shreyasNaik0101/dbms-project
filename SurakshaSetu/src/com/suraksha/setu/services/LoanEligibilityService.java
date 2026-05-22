@@ -96,7 +96,7 @@ public class LoanEligibilityService {
 
     /** Get all loan providers from DB. */
     public List<LoanProvider> getAllProviders() throws SQLException {
-        String sql = "SELECT * FROM loan_providers ORDER BY min_trust_score_required";
+        String sql = "SELECT * FROM loan_providers ORDER BY min_trust_score";
         List<LoanProvider> list = new ArrayList<>();
         Connection conn = null; PreparedStatement ps = null; ResultSet rs = null;
         try {

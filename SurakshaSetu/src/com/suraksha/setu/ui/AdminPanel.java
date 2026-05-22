@@ -57,11 +57,13 @@ public class AdminPanel extends JPanel implements MainFrame.Refreshable {
         JButton refreshBtn   = toolBtn("🔄 Refresh",     new Color(71, 85, 105));
         JButton recalcAllBtn = toolBtn("⚡ Recalc All", new Color(234, 179, 8));
         JButton sortBtn      = toolBtn("↕ Sort Score",  new Color(71, 85, 105));
+        JButton registerBtn  = toolBtn("➕ Register Worker", new Color(34, 197, 94));
 
         toolbar.add(new JLabel("Search: ") {{setForeground(new Color(148,163,184));setFont(new Font("Segoe UI",Font.PLAIN,12));}});
         toolbar.add(searchField);
         toolbar.add(searchBtn); toolbar.add(refreshBtn);
         toolbar.add(recalcAllBtn); toolbar.add(sortBtn);
+        toolbar.add(registerBtn);
 
         // ── Workers Table ─────────────────────────────────────────────────
         String[] cols = {"ID", "Digital ID", "Name", "Phone", "Trust Score", "Joined"};
@@ -100,6 +102,13 @@ public class AdminPanel extends JPanel implements MainFrame.Refreshable {
         refreshBtn.addActionListener(e -> loadWorkers());
         sortBtn.addActionListener(e -> sortByscore());
         recalcAllBtn.addActionListener(e -> recalcAll());
+        registerBtn.addActionListener(e -> {
+            RegisterWorkerDialog dialog = new RegisterWorkerDialog(SwingUtilities.getWindowAncestor(this));
+            dialog.setVisible(true);
+            if (dialog.isRegistrationSuccessful()) {
+                loadWorkers();
+            }
+        });
 
         searchField.addActionListener(e -> filterWorkers(searchField.getText().trim()));
     }

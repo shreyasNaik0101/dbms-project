@@ -21,6 +21,10 @@ public class MainFrame extends JFrame {
 
     public MainFrame(User user) {
         super("SurakshaSetu — " + user.getDisplayName());
+        
+        // Globally disable tooltips
+        ToolTipManager.sharedInstance().setEnabled(false);
+
         this.currentUser = user;
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         setSize(1000, 680);
@@ -55,7 +59,15 @@ public class MainFrame extends JFrame {
         setJMenuBar(menuBar);
 
         // ── Tabs ─────────────────────────────────────────────────────────────
-        tabs = new JTabbedPane(JTabbedPane.TOP);
+        // Override getToolTipText to fully suppress tab hover tooltips.
+        // setToolTipTextAt(i, null) alone is insufficient — Swing still falls
+        // back to showing the title when tooltip is null.
+        tabs = new JTabbedPane(JTabbedPane.TOP) {
+            @Override
+            public String getToolTipText(java.awt.event.MouseEvent e) {
+                return null;  // never show any tooltip on tabs
+            }
+        };
         tabs.setBackground(new Color(15, 23, 42));
         tabs.setForeground(Color.WHITE);
         tabs.setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -68,12 +80,16 @@ public class MainFrame extends JFrame {
             tabs.addTab("💰 Financials",   new FinancialHubPanel(worker));
             tabs.addTab("🏦 Loans",        new LoanEligibilityPanel(worker));
             tabs.addTab("🛡️ Benefits",     new BenefitEnrollmentPanel(worker));
+            // Disable auto-generated tab tooltips (JTabbedPane uses title as tooltip by default)
+            for (int i = 0; i < tabs.getTabCount(); i++) tabs.setToolTipTextAt(i, null);
         }
 
         // Admin tab — only for admins
         if (user.isAdmin()) {
             tabs.addTab("📊 Dashboard",    new WorkerDashboardPanel(null));
             tabs.addTab("🔑 Admin Panel",  new AdminPanel());
+            // Disable auto-generated tab tooltips
+            for (int i = 0; i < tabs.getTabCount(); i++) tabs.setToolTipTextAt(i, null);
         }
 
         add(tabs, BorderLayout.CENTER);
