@@ -97,7 +97,7 @@ public class TrustScoreDAO extends GenericDAO<TrustScoreAudit> {
     /** Count distinct work days in last 30 days. */
     public int getWorkDaysLast30(int workerId) throws SQLException {
         String sql = "SELECT COUNT(DISTINCT work_date) AS days FROM work_history "
-                   + "WHERE worker_id = ? AND work_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)";
+                   + "WHERE worker_id = ? AND work_date >= CURRENT_DATE - INTERVAL '30 days'";
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;

@@ -111,6 +111,14 @@ public class BenefitEnrollmentPanel extends JPanel implements MainFrame.Refresha
 
     private void enrollInScheme(int schemeId) {
         try {
+            // Check if already enrolled
+            List<BenefitScheme> enrolled = benefitDAO.findEnrolledSchemes(worker.getWorkerId());
+            boolean alreadyEnrolled = enrolled.stream().anyMatch(e -> e.getSchemeId() == schemeId);
+            if (alreadyEnrolled) {
+                statusLabel.setText("ℹ Already enrolled in this scheme.");
+                statusLabel.setForeground(new Color(250, 204, 21));
+                return;
+            }
             benefitDAO.enrollWorker(worker.getWorkerId(), schemeId, new Date(System.currentTimeMillis()));
             statusLabel.setText("✓ Enrolled successfully!");
             statusLabel.setForeground(new Color(74, 222, 128));

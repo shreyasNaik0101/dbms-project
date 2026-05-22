@@ -178,7 +178,7 @@ public class MainFrame extends JFrame {
     private void showAbout() {
         JOptionPane.showMessageDialog(this,
             "SurakshaSetu v1.0\nDigital Identity & Trust Management\nfor Gig Economy Workers\n\n" +
-            "Stack: Java 11 + Swing + MySQL\nDeveloped as a DBMS Project",
+            "Stack: Java 11 + Swing + PostgreSQL\nDeveloped as a DBMS Project",
             "About", JOptionPane.INFORMATION_MESSAGE);
     }
 

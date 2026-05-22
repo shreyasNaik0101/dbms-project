@@ -77,7 +77,7 @@ public class BenefitSchemeDAO extends GenericDAO<BenefitScheme> {
 
     /** Enroll a worker in a scheme. */
     public void enrollWorker(int workerId, int schemeId, java.sql.Date startDate) throws SQLException {
-        String sql = "INSERT INTO scheme_enrollments (worker_id, scheme_id, start_date, status) VALUES (?,?,?,'Active')";
+        String sql = "INSERT INTO scheme_enrollments (worker_id, scheme_id, enrollment_date) VALUES (?,?,?)";
         Connection conn = null; PreparedStatement ps = null;
         try {
             conn = DatabaseConnection.getConnection();
@@ -91,7 +91,7 @@ public class BenefitSchemeDAO extends GenericDAO<BenefitScheme> {
     public List<BenefitScheme> findEnrolledSchemes(int workerId) throws SQLException {
         String sql = "SELECT bs.* FROM benefit_schemes bs "
                    + "JOIN scheme_enrollments se ON bs.scheme_id = se.scheme_id "
-                   + "WHERE se.worker_id = ? AND se.status = 'Active'";
+                   + "WHERE se.worker_id = ?";
         List<BenefitScheme> list = new ArrayList<>();
         Connection conn = null; PreparedStatement ps = null; ResultSet rs = null;
         try {

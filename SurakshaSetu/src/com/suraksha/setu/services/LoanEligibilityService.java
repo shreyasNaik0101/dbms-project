@@ -105,7 +105,7 @@ public class LoanEligibilityService {
             while (rs.next()) {
                 list.add(new LoanProvider(rs.getInt("provider_id"),
                         rs.getString("provider_name"),
-                        rs.getDouble("min_trust_score_required")));
+                        rs.getDouble("min_trust_score")));
             }
             return list;
         } finally { DatabaseConnection.closeQuietly(rs, ps, conn); }

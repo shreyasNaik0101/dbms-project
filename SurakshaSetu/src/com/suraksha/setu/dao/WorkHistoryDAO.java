@@ -31,10 +31,11 @@ public class WorkHistoryDAO extends GenericDAO<WorkHistory> {
             ps.setDate(3, wh.getWorkDate());
             ps.setDouble(4, wh.getHoursLogged());
             ps.setDouble(5, wh.getEarnings());
-            ps.setDate(6, wh.getCompletionDate());
+            ps.setTimestamp(6, wh.getCompletionDate() != null
+                ? new java.sql.Timestamp(wh.getCompletionDate().getTime()) : null);
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
-            if (keys.next()) wh.setEntryId(keys.getInt(1));
+            if (keys.next()) wh.setEntryId(keys.getInt(1)); // maps to work_id PK
             DatabaseConnection.closeQuietly(keys);
         } finally {
             DatabaseConnection.closeQuietly(ps, conn);
@@ -102,7 +103,7 @@ public class WorkHistoryDAO extends GenericDAO<WorkHistory> {
     public List<WorkHistory> findRecentDays(int workerId, int days) throws SQLException {
         String sql = "SELECT wh.*, gp.platform_name FROM work_history wh "
                    + "JOIN gig_platforms gp ON wh.platform_id = gp.platform_id "
-                   + "WHERE wh.worker_id = ? AND wh.work_date >= DATE_SUB(CURDATE(), INTERVAL ? DAY) "
+                   + "WHERE wh.worker_id = ? AND wh.work_date >= CURRENT_DATE - (? * INTERVAL '1 day') "
                    + "ORDER BY wh.work_date DESC";
         List<WorkHistory> list = new ArrayList<>();
         Connection conn = null;
@@ -178,13 +179,14 @@ public class WorkHistoryDAO extends GenericDAO<WorkHistory> {
 
     private WorkHistory mapRow(ResultSet rs) throws SQLException {
         WorkHistory wh = new WorkHistory(
-            rs.getInt("entry_id"),
+            rs.getInt("work_id"),   // PK column is work_id in PostgreSQL schema
             rs.getInt("worker_id"),
             rs.getInt("platform_id"),
             rs.getDate("work_date"),
             rs.getDouble("hours_logged"),
             rs.getDouble("earnings"),
-            rs.getDate("completion_date")
+            rs.getTimestamp("completion_date") != null
+                ? new java.sql.Date(rs.getTimestamp("completion_date").getTime()) : null
         );
         try { wh.setPlatformName(rs.getString("platform_name")); } catch (SQLException ignored) {}
         return wh;
