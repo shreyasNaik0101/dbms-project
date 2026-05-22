@@ -46,7 +46,7 @@ public class WorkHistoryDAO extends GenericDAO<WorkHistory> {
     public WorkHistory findById(int entryId) throws SQLException {
         String sql = "SELECT wh.*, gp.platform_name FROM work_history wh "
                    + "JOIN gig_platforms gp ON wh.platform_id = gp.platform_id "
-                   + "WHERE wh.entry_id = ?";
+                   + "WHERE wh.work_id = ?";
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -147,7 +147,7 @@ public class WorkHistoryDAO extends GenericDAO<WorkHistory> {
 
     @Override
     public void update(WorkHistory wh) throws SQLException {
-        String sql = "UPDATE work_history SET hours_logged=?, earnings=? WHERE entry_id=?";
+        String sql = "UPDATE work_history SET hours_logged=?, earnings=? WHERE work_id=?";
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -164,7 +164,7 @@ public class WorkHistoryDAO extends GenericDAO<WorkHistory> {
 
     @Override
     public void delete(int entryId) throws SQLException {
-        String sql = "DELETE FROM work_history WHERE entry_id=?";
+        String sql = "DELETE FROM work_history WHERE work_id=?";
         Connection conn = null;
         PreparedStatement ps = null;
         try {
