@@ -65,8 +65,14 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 l.setOpaque(true);
                 l.setBackground(isSelected ? new Color(51, 65, 85) : new Color(30, 41, 59));
-                l.setForeground(Color.WHITE);
                 l.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+                if (value == null) {
+                    l.setText("No providers available (Trust Score < 600)");
+                    l.setForeground(new Color(248, 113, 113));
+                } else {
+                    l.setText(value.toString());
+                    l.setForeground(Color.WHITE);
+                }
                 return l;
             }
         });
@@ -181,8 +187,12 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
             providerBox.removeAllItems();
             List<LoanEligibilityService.LoanProvider> providers =
                 loanService.getEligibleProviders(worker.getCurrentTrustScore());
-            for (LoanEligibilityService.LoanProvider p : providers) {
-                providerBox.addItem(p);
+            if (providers.isEmpty()) {
+                providerBox.addItem(null);
+            } else {
+                for (LoanEligibilityService.LoanProvider p : providers) {
+                    providerBox.addItem(p);
+                }
             }
         } catch (Exception e) {
             System.err.println("Could not load providers: " + e.getMessage());

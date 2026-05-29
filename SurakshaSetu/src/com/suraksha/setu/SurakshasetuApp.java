@@ -4,6 +4,9 @@ import com.suraksha.setu.ui.LoginFrame;
 
 import javax.swing.*;
 
+import javax.swing.Painter;
+import java.awt.Graphics2D;
+
 /**
  * Application entry point.
  * Sets Nimbus Look & Feel (with fallback to system L&F).
@@ -34,6 +37,24 @@ public class SurakshasetuApp {
         UIManager.put("control",             new java.awt.Color(30, 41, 59));
         UIManager.put("text",                new java.awt.Color(226, 232, 240));
         UIManager.put("nimbusSelectionBackground", new java.awt.Color(59, 130, 246));
+
+        // Customize text input background painters to respect setBackground() under Nimbus L&F
+        Painter<JComponent> darkPainter = new Painter<JComponent>() {
+            @Override
+            public void paint(Graphics2D g, JComponent c, int w, int h) {
+                g.setColor(c.getBackground());
+                g.fillRect(0, 0, w, h);
+            }
+        };
+        UIManager.put("FormattedTextField[Enabled].backgroundPainter", darkPainter);
+        UIManager.put("FormattedTextField[Focused].backgroundPainter", darkPainter);
+        UIManager.put("FormattedTextField[Selected].backgroundPainter", darkPainter);
+        UIManager.put("TextField[Enabled].backgroundPainter", darkPainter);
+        UIManager.put("TextField[Focused].backgroundPainter", darkPainter);
+        UIManager.put("TextField[Selected].backgroundPainter", darkPainter);
+        UIManager.put("PasswordField[Enabled].backgroundPainter", darkPainter);
+        UIManager.put("PasswordField[Focused].backgroundPainter", darkPainter);
+        UIManager.put("PasswordField[Selected].backgroundPainter", darkPainter);
 
         // Globally disable tooltips — Nimbus L&F auto-generates them from
         // component text (tab titles, labels, etc.) which clutters the UI.
