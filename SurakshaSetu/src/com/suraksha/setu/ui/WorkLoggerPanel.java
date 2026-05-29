@@ -7,6 +7,7 @@ import com.suraksha.setu.models.WorkHistory;
 import com.suraksha.setu.models.Worker;
 
 import javax.swing.*;
+import javax.swing.Painter;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.Date;
@@ -88,16 +89,47 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
         hoursSpinner.setForeground(Color.WHITE);
         hoursSpinner.setBorder(BorderFactory.createLineBorder(new Color(71, 85, 105), 1));
         JComponent editor = hoursSpinner.getEditor();
+        editor.setBackground(new Color(30, 41, 59));
+        editor.setOpaque(true);
         if (editor instanceof JSpinner.DefaultEditor) {
             JFormattedTextField tf = ((JSpinner.DefaultEditor) editor).getTextField();
+            tf.setOpaque(false);
+            
+            // Register specific overrides to guarantee background remains dark
+            UIDefaults overrides = new UIDefaults();
+            overrides.put("FormattedTextField[Enabled].backgroundPainter", new Painter<JFormattedTextField>() {
+                @Override
+                public void paint(Graphics2D g, JFormattedTextField c, int w, int h) {
+                    g.setColor(new Color(30, 41, 59));
+                    g.fillRect(0, 0, w, h);
+                }
+            });
+            overrides.put("FormattedTextField[Focused].backgroundPainter", new Painter<JFormattedTextField>() {
+                @Override
+                public void paint(Graphics2D g, JFormattedTextField c, int w, int h) {
+                    g.setColor(new Color(30, 41, 59));
+                    g.fillRect(0, 0, w, h);
+                }
+            });
+            tf.putClientProperty("Nimbus.Overrides", overrides);
+            tf.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
+            
             tf.setBackground(new Color(30, 41, 59));
             tf.setForeground(Color.WHITE);
             tf.setCaretColor(Color.WHITE);
             tf.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
         }
 
-        // Earnings field
-        earningsField = new JTextField();
+        // Earnings field with custom paintComponent subclass to bypass Nimbus background painter
+        earningsField = new JTextField() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                g.setColor(getBackground());
+                g.fillRect(0, 0, getWidth(), getHeight());
+                super.paintComponent(g);
+            }
+        };
+        earningsField.setOpaque(false);
         earningsField.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         earningsField.setBackground(new Color(15, 23, 42));
         earningsField.setForeground(Color.WHITE);

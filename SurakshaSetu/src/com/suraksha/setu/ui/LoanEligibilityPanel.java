@@ -77,7 +77,15 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
             }
         });
 
-        amountField = new JTextField();
+        amountField = new JTextField() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                g.setColor(getBackground());
+                g.fillRect(0, 0, getWidth(), getHeight());
+                super.paintComponent(g);
+            }
+        };
+        amountField.setOpaque(false);
         amountField.setBackground(new Color(15, 23, 42));
         amountField.setForeground(Color.WHITE);
         amountField.setCaretColor(Color.WHITE);
