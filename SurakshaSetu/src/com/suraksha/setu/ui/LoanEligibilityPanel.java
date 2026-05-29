@@ -64,14 +64,17 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
             public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
                 JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 l.setOpaque(true);
-                l.setBackground(isSelected ? new Color(51, 65, 85) : new Color(30, 41, 59));
                 l.setFont(new Font("Segoe UI", Font.PLAIN, 13));
                 if (value == null) {
-                    l.setText("No providers available (Trust Score < 600)");
+                    l.setBackground(isSelected ? new Color(51, 65, 85) : new Color(30, 41, 59));
+                    l.setText("No providers in database");
                     l.setForeground(new Color(248, 113, 113));
                 } else {
-                    l.setText(value.toString());
-                    l.setForeground(Color.WHITE);
+                    LoanEligibilityService.LoanProvider p = (LoanEligibilityService.LoanProvider) value;
+                    boolean eligible = worker.getCurrentTrustScore() >= p.minTrustScore;
+                    l.setBackground(isSelected ? new Color(51, 65, 85) : new Color(30, 41, 59));
+                    l.setText(p.providerName + " (Min Score: " + (int) p.minTrustScore + ")" + (eligible ? " ✓" : " — Need Score " + (int)p.minTrustScore));
+                    l.setForeground(eligible ? Color.WHITE : new Color(250, 204, 21));
                 }
                 return l;
             }
@@ -193,13 +196,21 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
     private void loadProviders() {
         try {
             providerBox.removeAllItems();
-            List<LoanEligibilityService.LoanProvider> providers =
-                loanService.getEligibleProviders(worker.getCurrentTrustScore());
-            if (providers.isEmpty()) {
+            // Load ALL providers so the dropdown is never empty
+            List<LoanEligibilityService.LoanProvider> allProviders = loanService.getAllProviders();
+            double trustScore = worker.getCurrentTrustScore();
+            if (allProviders.isEmpty()) {
                 providerBox.addItem(null);
             } else {
-                for (LoanEligibilityService.LoanProvider p : providers) {
+                for (LoanEligibilityService.LoanProvider p : allProviders) {
                     providerBox.addItem(p);
+                }
+                // Auto-select first eligible one if any
+                for (int i = 0; i < allProviders.size(); i++) {
+                    if (trustScore >= allProviders.get(i).minTrustScore) {
+                        providerBox.setSelectedIndex(i);
+                        break;
+                    }
                 }
             }
         } catch (Exception e) {

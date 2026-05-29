@@ -3,9 +3,8 @@ package com.suraksha.setu;
 import com.suraksha.setu.ui.LoginFrame;
 
 import javax.swing.*;
-
 import javax.swing.Painter;
-import java.awt.Graphics2D;
+import java.awt.*;
 
 /**
  * Application entry point.

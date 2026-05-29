@@ -7,7 +7,6 @@ import com.suraksha.setu.models.WorkHistory;
 import com.suraksha.setu.models.Worker;
 
 import javax.swing.*;
-import javax.swing.Painter;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.Date;
@@ -82,43 +81,44 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
             }
         });
 
-        // Hours spinner
+        // Hours spinner — use NumberEditor, style editor panel + text field directly
         hoursSpinner = new JSpinner(new SpinnerNumberModel(8.0, 0.5, 16.0, 0.5));
         hoursSpinner.setFont(new Font("Segoe UI", Font.PLAIN, 13));
         hoursSpinner.setBackground(new Color(30, 41, 59));
         hoursSpinner.setForeground(Color.WHITE);
         hoursSpinner.setBorder(BorderFactory.createLineBorder(new Color(71, 85, 105), 1));
-        JComponent editor = hoursSpinner.getEditor();
-        editor.setBackground(new Color(30, 41, 59));
-        editor.setOpaque(true);
-        if (editor instanceof JSpinner.DefaultEditor) {
-            JFormattedTextField tf = ((JSpinner.DefaultEditor) editor).getTextField();
-            tf.setOpaque(false);
-            
-            // Register specific overrides to guarantee background remains dark
-            UIDefaults overrides = new UIDefaults();
-            overrides.put("FormattedTextField[Enabled].backgroundPainter", new Painter<JFormattedTextField>() {
-                @Override
-                public void paint(Graphics2D g, JFormattedTextField c, int w, int h) {
-                    g.setColor(new Color(30, 41, 59));
-                    g.fillRect(0, 0, w, h);
-                }
-            });
-            overrides.put("FormattedTextField[Focused].backgroundPainter", new Painter<JFormattedTextField>() {
-                @Override
-                public void paint(Graphics2D g, JFormattedTextField c, int w, int h) {
-                    g.setColor(new Color(30, 41, 59));
-                    g.fillRect(0, 0, w, h);
-                }
-            });
-            tf.putClientProperty("Nimbus.Overrides", overrides);
-            tf.putClientProperty("Nimbus.Overrides.InheritDefaults", true);
-            
-            tf.setBackground(new Color(30, 41, 59));
-            tf.setForeground(Color.WHITE);
-            tf.setCaretColor(Color.WHITE);
-            tf.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
-        }
+
+        // Use NumberEditor so we get a JFormattedTextField we fully control
+        JSpinner.NumberEditor numEditor = new JSpinner.NumberEditor(hoursSpinner, "0.0") {
+            @Override
+            protected void paintComponent(Graphics g) {
+                g.setColor(new Color(30, 41, 59));
+                g.fillRect(0, 0, getWidth(), getHeight());
+                super.paintComponent(g);
+            }
+        };
+        numEditor.setBackground(new Color(30, 41, 59));
+        numEditor.setForeground(Color.WHITE);
+        numEditor.setOpaque(true);
+
+        JFormattedTextField spinnerTF = numEditor.getTextField();
+        spinnerTF.setBackground(new Color(30, 41, 59));
+        spinnerTF.setForeground(Color.WHITE);
+        spinnerTF.setCaretColor(Color.WHITE);
+        spinnerTF.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        spinnerTF.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
+        spinnerTF.setOpaque(true);
+        spinnerTF.setColumns(5);
+        // Force repaint override
+        spinnerTF.setUI(new javax.swing.plaf.basic.BasicFormattedTextFieldUI() {
+            @Override
+            protected void paintBackground(Graphics g) {
+                g.setColor(new Color(30, 41, 59));
+                g.fillRect(0, 0, spinnerTF.getWidth(), spinnerTF.getHeight());
+            }
+        });
+
+        hoursSpinner.setEditor(numEditor);
 
         // Earnings field with custom paintComponent subclass to bypass Nimbus background painter
         earningsField = new JTextField() {
