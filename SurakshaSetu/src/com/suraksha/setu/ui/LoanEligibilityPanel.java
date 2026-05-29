@@ -59,6 +59,17 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
         providerBox.setBackground(new Color(30, 41, 59));
         providerBox.setForeground(Color.WHITE);
         providerBox.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        providerBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                l.setOpaque(true);
+                l.setBackground(isSelected ? new Color(51, 65, 85) : new Color(30, 41, 59));
+                l.setForeground(Color.WHITE);
+                l.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+                return l;
+            }
+        });
 
         amountField = new JTextField();
         amountField.setBackground(new Color(15, 23, 42));

@@ -60,6 +60,17 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
         platformBox.setBackground(new Color(30, 41, 59));
         platformBox.setForeground(Color.WHITE);
         platformBox.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        platformBox.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+                JLabel l = (JLabel) super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                l.setOpaque(true);
+                l.setBackground(isSelected ? new Color(51, 65, 85) : new Color(30, 41, 59));
+                l.setForeground(Color.WHITE);
+                l.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+                return l;
+            }
+        });
         loadPlatforms();
 
         // ItemListener on platform dropdown
@@ -73,6 +84,17 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
         // Hours spinner
         hoursSpinner = new JSpinner(new SpinnerNumberModel(8.0, 0.5, 16.0, 0.5));
         hoursSpinner.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        hoursSpinner.setBackground(new Color(30, 41, 59));
+        hoursSpinner.setForeground(Color.WHITE);
+        hoursSpinner.setBorder(BorderFactory.createLineBorder(new Color(71, 85, 105), 1));
+        JComponent editor = hoursSpinner.getEditor();
+        if (editor instanceof JSpinner.DefaultEditor) {
+            JFormattedTextField tf = ((JSpinner.DefaultEditor) editor).getTextField();
+            tf.setBackground(new Color(30, 41, 59));
+            tf.setForeground(Color.WHITE);
+            tf.setCaretColor(Color.WHITE);
+            tf.setBorder(BorderFactory.createEmptyBorder(4, 8, 4, 8));
+        }
 
         // Earnings field
         earningsField = new JTextField();
