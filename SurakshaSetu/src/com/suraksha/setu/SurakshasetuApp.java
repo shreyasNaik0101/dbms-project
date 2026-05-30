@@ -55,6 +55,17 @@ public class SurakshasetuApp {
         UIManager.put("PasswordField[Focused].backgroundPainter", darkPainter);
         UIManager.put("PasswordField[Selected].backgroundPainter", darkPainter);
 
+        // Force white text color for all text components in all states under Nimbus L&F
+        UIManager.put("FormattedTextField[Enabled].textForeground", java.awt.Color.WHITE);
+        UIManager.put("FormattedTextField[Focused].textForeground", java.awt.Color.WHITE);
+        UIManager.put("FormattedTextField[Selected].textForeground", java.awt.Color.WHITE);
+        UIManager.put("TextField[Enabled].textForeground", java.awt.Color.WHITE);
+        UIManager.put("TextField[Focused].textForeground", java.awt.Color.WHITE);
+        UIManager.put("TextField[Selected].textForeground", java.awt.Color.WHITE);
+        UIManager.put("PasswordField[Enabled].textForeground", java.awt.Color.WHITE);
+        UIManager.put("PasswordField[Focused].textForeground", java.awt.Color.WHITE);
+        UIManager.put("PasswordField[Selected].textForeground", java.awt.Color.WHITE);
+
         // Globally disable tooltips — Nimbus L&F auto-generates them from
         // component text (tab titles, labels, etc.) which clutters the UI.
         ToolTipManager.sharedInstance().setEnabled(false);
