@@ -61,10 +61,11 @@ public class WorkHistoryDAO extends GenericDAO<WorkHistory> {
                 existing.close();
                 ps.close();
                 ps = conn.prepareStatement(
-                    "UPDATE monthly_earnings_summary SET total_gross = ?, net_savings = total_gross - total_expenses "
+                    "UPDATE monthly_earnings_summary SET total_gross = ?, net_savings = ? - total_expenses "
                     + "WHERE summary_id = ?");
                 ps.setDouble(1, newGross);
-                ps.setInt(2, summaryId);
+                ps.setDouble(2, newGross);  // fix: use new value, not column reference
+                ps.setInt(3, summaryId);
                 ps.executeUpdate();
                 ps.close();
             } else {

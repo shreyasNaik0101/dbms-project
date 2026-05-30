@@ -112,10 +112,31 @@ public class TrustScoreDAO extends GenericDAO<TrustScoreAudit> {
         }
     }
 
-    /** Get monthly earnings stats for income stability calculation. */
+    /** Count distinct work days in last 90 days — used for trust score consistency. */
+    public int getWorkDaysLast90(int workerId) throws SQLException {
+        String sql = "SELECT COUNT(DISTINCT work_date) AS days FROM work_history "
+                   + "WHERE worker_id = ? AND work_date >= CURRENT_DATE - INTERVAL '90 days'";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            ps   = conn.prepareStatement(sql);
+            ps.setInt(1, workerId);
+            rs = ps.executeQuery();
+            return rs.next() ? rs.getInt("days") : 0;
+        } finally {
+            DatabaseConnection.closeQuietly(rs, ps, conn);
+        }
+    }
+
+    /** Get monthly earnings stats for income stability calculation.
+     *  Returns [minMonthly, avgMonthly] from monthly_earnings_summary.
+     *  Falls back to computing directly from work_history if summary is empty.
+     */
     public double[] getMonthlyEarningsStats(int workerId) throws SQLException {
-        // Returns [minMonthly, avgMonthly]
-        String sql = "SELECT MIN(total_gross) AS min_g, AVG(total_gross) AS avg_g "
+        // First try monthly_earnings_summary
+        String sql = "SELECT MIN(total_gross) AS min_g, AVG(total_gross) AS avg_g, COUNT(*) AS months "
                    + "FROM monthly_earnings_summary WHERE worker_id = ?";
         Connection conn = null;
         PreparedStatement ps = null;
@@ -125,8 +146,25 @@ public class TrustScoreDAO extends GenericDAO<TrustScoreAudit> {
             ps   = conn.prepareStatement(sql);
             ps.setInt(1, workerId);
             rs = ps.executeQuery();
+            if (rs.next() && rs.getInt("months") > 0) {
+                double minG = rs.getDouble("min_g");
+                double avgG = rs.getDouble("avg_g");
+                if (avgG > 0) {
+                    return new double[]{ minG, avgG };
+                }
+            }
+            // Fallback: compute per-month totals directly from work_history
+            DatabaseConnection.closeQuietly(rs, ps, null);
+            sql = "SELECT MIN(monthly_total) AS min_g, AVG(monthly_total) AS avg_g "
+                + "FROM (SELECT TO_CHAR(work_date, 'YYYY-MM') AS mo, SUM(earnings) AS monthly_total "
+                +       "FROM work_history WHERE worker_id = ? GROUP BY TO_CHAR(work_date, 'YYYY-MM')) AS monthly";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, workerId);
+            rs = ps.executeQuery();
             if (rs.next()) {
-                return new double[]{ rs.getDouble("min_g"), rs.getDouble("avg_g") };
+                double minG = rs.getDouble("min_g");
+                double avgG = rs.getDouble("avg_g");
+                return new double[]{ minG, avgG };
             }
             return new double[]{0.0, 0.0};
         } finally {
