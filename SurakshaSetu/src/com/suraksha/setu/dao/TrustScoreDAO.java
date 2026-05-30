@@ -130,6 +130,24 @@ public class TrustScoreDAO extends GenericDAO<TrustScoreAudit> {
         }
     }
 
+    /** Count total work logs in last 90 days. */
+    public int getWorkLogCountLast90(int workerId) throws SQLException {
+        String sql = "SELECT COUNT(*) AS total FROM work_history "
+                   + "WHERE worker_id = ? AND work_date >= CURRENT_DATE - INTERVAL '90 days'";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            ps   = conn.prepareStatement(sql);
+            ps.setInt(1, workerId);
+            rs = ps.executeQuery();
+            return rs.next() ? rs.getInt("total") : 0;
+        } finally {
+            DatabaseConnection.closeQuietly(rs, ps, conn);
+        }
+    }
+
     /** Count how many distinct months a worker has any earnings recorded. */
     public int getMonthCount(int workerId) throws SQLException {
         String sql = "SELECT COUNT(*) AS cnt FROM monthly_earnings_summary WHERE worker_id = ? AND total_gross > 0";

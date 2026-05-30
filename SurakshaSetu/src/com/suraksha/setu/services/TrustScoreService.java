@@ -47,9 +47,10 @@ public class TrustScoreService {
 
         double oldScore = worker.getCurrentTrustScore();
 
-        // 1. Consistency — work days in last 90 days (fairer window for new workers)
+        // 1. Consistency — blend of distinct work days + total gigs (highly responsive to new entries)
         int    workDays    = trustScoreDAO.getWorkDaysLast90(workerId);
-        double consistency = Math.min(100.0, (workDays / 90.0) * 100.0);
+        int    totalGigs   = trustScoreDAO.getWorkLogCountLast90(workerId);
+        double consistency = Math.min(100.0, (workDays * 5.0) + (totalGigs * 2.0));
 
         // 2. Rating component — avg across all platforms, 0–5 mapped to 0–100
         double avgRating  = trustScoreDAO.getAvgRating(workerId);
@@ -93,7 +94,10 @@ public class TrustScoreService {
         Worker worker = workerDAO.findById(workerId);
         if (worker == null) throw new WorkerNotFoundException(workerId);
 
-        int    days    = trustScoreDAO.getWorkDaysLast90(workerId);
+        int    days       = trustScoreDAO.getWorkDaysLast90(workerId);
+        int    totalGigs  = trustScoreDAO.getWorkLogCountLast90(workerId);
+        double consistency = Math.min(100.0, (days * 5.0) + (totalGigs * 2.0));
+        
         double rating  = trustScoreDAO.getAvgRating(workerId);
         double[] stats = trustScoreDAO.getMonthlyEarningsStats(workerId);
         double avgMonthly  = stats[1];
@@ -101,7 +105,8 @@ public class TrustScoreService {
         double incomeLevel = Math.min(90.0, (avgMonthly / 20000.0) * 90.0);
         double regularity  = (monthCount >= 3) ? 10.0 : (monthCount >= 1 ? 5.0 : 0.0);
         double incomeComp  = Math.min(100.0, incomeLevel + regularity);
-        double weighted = (0.40 * Math.min(100.0, (days / 90.0) * 100.0))
+        
+        double weighted = (0.40 * consistency)
                         + (0.35 * rating * 20.0)
                         + (0.25 * incomeComp);
         return Math.min(1000.0, Math.max(0.0, weighted * 10.0));

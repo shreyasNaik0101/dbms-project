@@ -127,6 +127,11 @@ public class WorkerDashboardPanel extends JPanel implements MainFrame.Refreshabl
         try {
             double newScore = trustScoreService.calculateAndUpdate(worker.getWorkerId());
             worker.setCurrentTrustScore(newScore);
+            // Silently refresh all tabs so that other panels (like LoanEligibilityPanel) are immediately updated
+            Window parent = SwingUtilities.getWindowAncestor(this);
+            if (parent instanceof MainFrame) {
+                ((MainFrame) parent).refreshAllTabsSilent();
+            }
             // Update all score-related UI elements
             scoreLabel.setText(String.format("%.0f / 1000", newScore));
             scoreLabel.setForeground(scoreColor(newScore));
