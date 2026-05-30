@@ -6,6 +6,7 @@ import com.suraksha.setu.services.AuthService;
 import com.suraksha.setu.services.TrustScoreUpdater;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -94,6 +95,14 @@ public class MainFrame extends JFrame {
 
         add(tabs, BorderLayout.CENTER);
 
+        // Automatically refresh the active tab when switching tabs
+        tabs.addChangeListener(e -> {
+            Component current = tabs.getSelectedComponent();
+            if (current instanceof Refreshable) {
+                ((Refreshable) current).refresh();
+            }
+        });
+
         // Status bar
         JPanel statusBar = new JPanel(new BorderLayout());
         statusBar.setBackground(new Color(15, 23, 42));
@@ -170,7 +179,7 @@ public class MainFrame extends JFrame {
     }
 
     /** Refresh all tabs silently (no popup). */
-    private void refreshAllTabsSilent() {
+    public void refreshAllTabsSilent() {
         for (int i = 0; i < tabs.getTabCount(); i++) {
             Component c = tabs.getComponentAt(i);
             if (c instanceof Refreshable) {

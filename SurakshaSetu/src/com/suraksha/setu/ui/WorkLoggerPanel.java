@@ -241,8 +241,25 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
             statusLabel.setText("✓ Work log saved successfully!");
             statusLabel.setForeground(new Color(74, 222, 128));
             earningsField.setText("");
+            
+            // Recalculate trust score immediately so they see it update instantly!
+            try {
+                com.suraksha.setu.services.TrustScoreService svc = new com.suraksha.setu.services.TrustScoreService();
+                double newScore = svc.calculateAndUpdate(worker.getWorkerId());
+                worker.setCurrentTrustScore(newScore);
+            } catch (Exception e) {
+                System.err.println("Could not auto-recalculate trust score: " + e.getMessage());
+            }
+
             loadHistory();
+
+            // Silently refresh all tabs in the parent MainFrame if it's the parent window
+            Window parent = SwingUtilities.getWindowAncestor(this);
+            if (parent instanceof MainFrame) {
+                ((MainFrame) parent).refreshAllTabsSilent();
+            }
         } catch (Exception ex) {
+            ex.printStackTrace();  // print full trace to console
             statusLabel.setText("✗ Error: " + ex.getMessage());
             statusLabel.setForeground(new Color(248, 113, 113));
         }
