@@ -1,7 +1,7 @@
 @echo off
 REM ============================================================
 REM  SurakshaSetu — Compile Script
-REM  Requires: JDK 11+, mysql-connector-j-9.0.0.jar in lib/
+REM  Requires: JDK 11+, postgresql-42.7.3.jar in lib/
 REM ============================================================
 
 set PROJECT_DIR=%~dp0
@@ -26,7 +26,7 @@ if %ERRORLEVEL% EQU 0 (
     echo.
     echo [ERROR] Build failed. Check error messages above.
     echo        Make sure JDK 11+ is installed and on PATH.
-    echo        Make sure lib\mysql-connector-j-9.0.0.jar exists.
+    echo        Make sure lib\postgresql-42.7.3.jar exists.
 )
 
 del "%PROJECT_DIR%sources.txt" 2>nul

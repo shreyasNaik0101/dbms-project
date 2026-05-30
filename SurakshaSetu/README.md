@@ -1,7 +1,7 @@
 # SurakshaSetu 🛡️
 
 > **Digital Identity & Trust Management System for Gig Economy Workers**  
-> Stack: Java 11 + Swing + JDBC + MySQL | No external libraries
+> Stack: Java 11 + Swing + JDBC + PostgreSQL | No external libraries
 
 ---
 
@@ -10,7 +10,7 @@
 ```
 SurakshaSetu/
 ├── sql/
-│   ├── schema.sql          ← 15-table DDL
+│   ├── schema.sql          ← 15-table DDL (PostgreSQL)
 │   └── sample_data.sql     ← 5 workers, 20+ logs
 ├── src/
 │   └── com/suraksha/setu/
@@ -22,7 +22,7 @@ SurakshaSetu/
 │       ├── services/             ← 6 business logic classes
 │       └── ui/                   ← 9 Swing windows/panels
 ├── lib/
-│   └── mysql-connector-j-9.0.0.jar   ← Place here!
+│   └── postgresql-42.7.3.jar   ← Place here!
 ├── out/                   ← Created by compile.bat
 ├── compile.bat
 └── run.bat
@@ -35,27 +35,27 @@ SurakshaSetu/
 | Requirement | Version |
 |-------------|---------|
 | JDK         | 11+     |
-| MySQL Server| 8.0+    |
-| MySQL Connector/J | 9.0.0 |
+| PostgreSQL  | 12.0+   |
+| PostgreSQL JDBC Driver | 42.7.3 |
 
 ---
 
 ## Setup Instructions
 
-### Step 1 — Download MySQL Connector JAR
-Download from: https://dev.mysql.com/downloads/connector/j/  
-Place `mysql-connector-j-9.0.0.jar` in the `lib/` folder.
+### Step 1 — Download PostgreSQL JDBC Driver
+Download from: https://jdbc.postgresql.org/download/  
+Place `postgresql-42.7.3.jar` in the `lib/` folder.
 
 ### Step 2 — Create Database
-Open MySQL Workbench or run in terminal:
+Open pgAdmin 4 or run in terminal:
 ```bash
-mysql -u root -p < sql/schema.sql
-mysql -u root -p < sql/sample_data.sql
+psql -U postgres -d suraksha_setu -f sql/schema.sql
+psql -U postgres -d suraksha_setu -f sql/sample_data.sql
 ```
-Or in MySQL shell:
+Or in psql shell:
 ```sql
-SOURCE C:/Users/shrey/dbms_prj/SurakshaSetu/sql/schema.sql;
-SOURCE C:/Users/shrey/dbms_prj/SurakshaSetu/sql/sample_data.sql;
+\i C:/Users/shrey/dbms_prj/SurakshaSetu/sql/schema.sql;
+\i C:/Users/shrey/dbms_prj/SurakshaSetu/sql/sample_data.sql;
 ```
 
 ### Step 3 — Compile
@@ -91,7 +91,7 @@ run.bat
 | Tab            | Functionality |
 |----------------|---------------|
 | Dashboard      | Profile card, trust score gauge, tier badge, KPIs |
-| Work Logger    | Log daily work entries with platform, hours, earnings |
+| Work Logger    | Log daily work entries with platform, hours, earnings, and delete mistaken entries |
 | Financial Hub  | Monthly summary table, net income calculation |
 | Loan Eligibility | Check eligibility, browse providers, apply for loans |
 | Admin Panel    | Search/filter/sort all workers, batch recalculation |
@@ -135,10 +135,10 @@ Background: TrustScoreUpdater (Thread) → TrustScoreService (synchronized)
 
 ```
 Score (0–1000) =
-  0.4 × (workDaysLast30 / 30) × 100          ← Consistency
-+ 0.3 × avgRating × 20                         ← Rating (0-5 → 0-100)
-+ 0.3 × (minMonthlyIncome / avgMonthlyIncome)  ← Income Stability
+  0.40 × Consistency (blend of distinct work days + total gigs logged in last 90 days)
++ 0.35 × RatingScore (avgRating × 20)
++ 0.25 × IncomeScore (incomeLevel + regularityBonus)
 
 Final = weightedSum × 10
 ```
-Score changes are persisted atomically with audit records via MySQL transactions.
+Score changes are persisted atomically with audit records via PostgreSQL transactions.
