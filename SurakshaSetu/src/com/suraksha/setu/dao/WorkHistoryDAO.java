@@ -19,13 +19,16 @@ public class WorkHistoryDAO extends GenericDAO<WorkHistory> {
 
     @Override
     public void save(WorkHistory wh) throws SQLException {
-        String sql = "INSERT INTO work_history (worker_id, platform_id, work_date, hours_logged, earnings, completion_date) "
+        String insertSql = "INSERT INTO work_history (worker_id, platform_id, work_date, hours_logged, earnings, completion_date) "
                    + "VALUES (?,?,?,?,?,?)";
         Connection conn = null;
         PreparedStatement ps = null;
         try {
             conn = DatabaseConnection.getConnection();
-            ps   = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            conn.setAutoCommit(false);
+
+            // 1. Insert into work_history
+            ps = conn.prepareStatement(insertSql, Statement.RETURN_GENERATED_KEYS);
             ps.setInt(1, wh.getWorkerId());
             ps.setInt(2, wh.getPlatformId());
             ps.setDate(3, wh.getWorkDate());
@@ -35,9 +38,75 @@ public class WorkHistoryDAO extends GenericDAO<WorkHistory> {
                 ? new java.sql.Timestamp(wh.getCompletionDate().getTime()) : null);
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
-            if (keys.next()) wh.setEntryId(keys.getInt(1)); // maps to work_id PK
+            if (keys.next()) wh.setEntryId(keys.getInt(1));
             DatabaseConnection.closeQuietly(keys);
+            ps.close();
+
+            // 2. Upsert monthly_earnings_summary for this month
+            // Get the month_year string (YYYY-MM) from the work date
+            String monthYear = wh.getWorkDate().toLocalDate().getYear()
+                + "-" + String.format("%02d", wh.getWorkDate().toLocalDate().getMonthValue());
+
+            // Check if a row exists for this worker+month
+            ps = conn.prepareStatement(
+                "SELECT summary_id, total_gross FROM monthly_earnings_summary "
+                + "WHERE worker_id = ? AND month_year = ?");
+            ps.setInt(1, wh.getWorkerId());
+            ps.setString(2, monthYear);
+            ResultSet existing = ps.executeQuery();
+            if (existing.next()) {
+                // Update existing row
+                int summaryId = existing.getInt("summary_id");
+                double newGross = existing.getDouble("total_gross") + wh.getEarnings();
+                existing.close();
+                ps.close();
+                ps = conn.prepareStatement(
+                    "UPDATE monthly_earnings_summary SET total_gross = ?, net_savings = total_gross - total_expenses "
+                    + "WHERE summary_id = ?");
+                ps.setDouble(1, newGross);
+                ps.setInt(2, summaryId);
+                ps.executeUpdate();
+                ps.close();
+            } else {
+                // Insert new row for this month
+                existing.close();
+                ps.close();
+                ps = conn.prepareStatement(
+                    "INSERT INTO monthly_earnings_summary (worker_id, month_year, total_gross, total_expenses, net_savings) "
+                    + "VALUES (?, ?, ?, 0, ?)");
+                ps.setInt(1, wh.getWorkerId());
+                ps.setString(2, monthYear);
+                ps.setDouble(3, wh.getEarnings());
+                ps.setDouble(4, wh.getEarnings());
+                ps.executeUpdate();
+                ps.close();
+            }
+
+            // 3. Ensure a performance_rating row exists for this worker+platform (default 4.0 rating)
+            ps = conn.prepareStatement(
+                "SELECT rating_id FROM performance_ratings WHERE worker_id = ? AND platform_id = ?");
+            ps.setInt(1, wh.getWorkerId());
+            ps.setInt(2, wh.getPlatformId());
+            ResultSet ratingCheck = ps.executeQuery();
+            boolean hasRating = ratingCheck.next();
+            ratingCheck.close();
+            ps.close();
+            if (!hasRating) {
+                ps = conn.prepareStatement(
+                    "INSERT INTO performance_ratings (worker_id, platform_id, avg_rating, total_reviews) "
+                    + "VALUES (?, ?, 4.0, 1)");
+                ps.setInt(1, wh.getWorkerId());
+                ps.setInt(2, wh.getPlatformId());
+                ps.executeUpdate();
+                ps.close();
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            if (conn != null) { try { conn.rollback(); } catch (SQLException ignored) {} }
+            throw e;
         } finally {
+            if (conn != null) { try { conn.setAutoCommit(true); } catch (SQLException ignored) {} }
             DatabaseConnection.closeQuietly(ps, conn);
         }
     }
