@@ -33,7 +33,7 @@ public class BenefitEnrollmentPanel extends JPanel implements MainFrame.Refresha
     }
 
     private void buildUI() {
-        JLabel header = new JLabel("🛡️ Benefit Schemes");
+        JLabel header = new JLabel("Benefit Schemes");
         header.setFont(new Font("Segoe UI", Font.BOLD, 22));
         header.setForeground(Color.WHITE);
         add(header, BorderLayout.NORTH);
@@ -43,7 +43,7 @@ public class BenefitEnrollmentPanel extends JPanel implements MainFrame.Refresha
 
         // --- Available Schemes ---
         JPanel availablePanel = createSectionPanel("Available Schemes");
-        String[] availCols = {"ID", "Scheme Name", "Coverage (₹)", "Premium (₹/mo)", "Action"};
+        String[] availCols = {"ID", "Scheme Name", "Coverage (Rs.)", "Premium (Rs./mo)", "Action"};
         availableModel = new DefaultTableModel(availCols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -74,7 +74,7 @@ public class BenefitEnrollmentPanel extends JPanel implements MainFrame.Refresha
 
         // --- Enrolled Schemes ---
         JPanel enrolledPanel = createSectionPanel("My Enrolled Schemes");
-        String[] enrollCols = {"ID", "Scheme Name", "Coverage (₹)", "Premium (₹/mo)"};
+        String[] enrollCols = {"ID", "Scheme Name", "Coverage (Rs.)", "Premium (Rs./mo)"};
         enrolledModel = new DefaultTableModel(enrollCols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) { return false; }
@@ -151,16 +151,16 @@ public class BenefitEnrollmentPanel extends JPanel implements MainFrame.Refresha
             List<BenefitScheme> enrolled = benefitDAO.findEnrolledSchemes(worker.getWorkerId());
             boolean alreadyEnrolled = enrolled.stream().anyMatch(e -> e.getSchemeId() == schemeId);
             if (alreadyEnrolled) {
-                statusLabel.setText("ℹ Already enrolled in this scheme.");
+                statusLabel.setText("[INFO] Already enrolled in this scheme.");
                 statusLabel.setForeground(new Color(250, 204, 21));
                 return;
             }
             benefitDAO.enrollWorker(worker.getWorkerId(), schemeId, new Date(System.currentTimeMillis()));
-            statusLabel.setText("✓ Enrolled successfully!");
+            statusLabel.setText("[SUCCESS] Enrolled successfully!");
             statusLabel.setForeground(new Color(74, 222, 128));
             refresh();
         } catch (SQLException e) {
-            statusLabel.setText("✗ Error enrolling: " + e.getMessage());
+            statusLabel.setText("[ERROR] Error enrolling: " + e.getMessage());
             statusLabel.setForeground(new Color(248, 113, 113));
         }
     }
@@ -177,8 +177,8 @@ public class BenefitEnrollmentPanel extends JPanel implements MainFrame.Refresha
                 boolean isEnrolled = enrolled.stream().anyMatch(e -> e.getSchemeId() == bs.getSchemeId());
                 availableModel.addRow(new Object[]{
                     bs.getSchemeId(), bs.getSchemeName(),
-                    String.format("₹%.0f", bs.getCoverageAmount()),
-                    String.format("₹%.0f", bs.getPremiumCost()),
+                    String.format("Rs. %.0f", bs.getCoverageAmount()),
+                    String.format("Rs. %.0f", bs.getPremiumCost()),
                     isEnrolled ? "Already Enrolled" : "Enroll Now"
                 });
             }
@@ -186,12 +186,12 @@ public class BenefitEnrollmentPanel extends JPanel implements MainFrame.Refresha
             for (BenefitScheme bs : enrolled) {
                 enrolledModel.addRow(new Object[]{
                     bs.getSchemeId(), bs.getSchemeName(),
-                    String.format("₹%.0f", bs.getCoverageAmount()),
-                    String.format("₹%.0f", bs.getPremiumCost())
+                    String.format("Rs. %.0f", bs.getCoverageAmount()),
+                    String.format("Rs. %.0f", bs.getPremiumCost())
                 });
             }
         } catch (SQLException e) {
-            statusLabel.setText("✗ Error loading schemes: " + e.getMessage());
+            statusLabel.setText("[ERROR] Error loading schemes: " + e.getMessage());
         }
     }
 }

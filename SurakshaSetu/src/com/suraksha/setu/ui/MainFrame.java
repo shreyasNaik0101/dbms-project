@@ -76,19 +76,19 @@ public class MainFrame extends JFrame {
         // Always-visible tabs
         if (user instanceof Worker) {
             Worker worker = (Worker) user;
-            tabs.addTab("📊 Dashboard",    new WorkerDashboardPanel(worker));
-            tabs.addTab("📝 Work Logger",  new WorkLoggerPanel(worker));
-            tabs.addTab("💰 Financials",   new FinancialHubPanel(worker));
-            tabs.addTab("🏦 Loans",        new LoanEligibilityPanel(worker));
-            tabs.addTab("🛡️ Benefits",     new BenefitEnrollmentPanel(worker));
+            tabs.addTab("Dashboard",    new WorkerDashboardPanel(worker));
+            tabs.addTab("Work Logger",  new WorkLoggerPanel(worker));
+            tabs.addTab("Financial Hub",   new FinancialHubPanel(worker));
+            tabs.addTab("Loan Eligibility",        new LoanEligibilityPanel(worker));
+            tabs.addTab("Benefit Schemes",     new BenefitEnrollmentPanel(worker));
             // Disable auto-generated tab tooltips (JTabbedPane uses title as tooltip by default)
             for (int i = 0; i < tabs.getTabCount(); i++) tabs.setToolTipTextAt(i, null);
         }
 
         // Admin tab — only for admins
         if (user.isAdmin()) {
-            tabs.addTab("📊 Dashboard",    new WorkerDashboardPanel(null));
-            tabs.addTab("🔑 Admin Panel",  new AdminPanel());
+            tabs.addTab("Dashboard",    new WorkerDashboardPanel(null));
+            tabs.addTab("Admin Panel",  new AdminPanel());
             // Disable auto-generated tab tooltips
             for (int i = 0; i < tabs.getTabCount(); i++) tabs.setToolTipTextAt(i, null);
         }

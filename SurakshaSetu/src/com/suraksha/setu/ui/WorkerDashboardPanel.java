@@ -60,7 +60,7 @@ public class WorkerDashboardPanel extends JPanel implements MainFrame.Refreshabl
     }
 
     private JPanel buildProfileCard() {
-        JPanel card = createCard("👤 Profile");
+        JPanel card = createCard("Profile");
         nameLabel  = infoLabel("Name",       worker.getFullName());
         idLabel    = infoLabel("Digital ID", worker.getDigitalWorkId());
         phoneLabel = infoLabel("Phone",      worker.getPhone());
@@ -89,7 +89,7 @@ public class WorkerDashboardPanel extends JPanel implements MainFrame.Refreshabl
     }
 
     private JPanel buildScoreCard() {
-        JPanel card = createCard("🎯 Trust Score");
+        JPanel card = createCard("Trust Score");
 
         scoreLabel = new JLabel(String.format("%.0f / 1000", worker.getCurrentTrustScore()));
         scoreLabel.setFont(new Font("Segoe UI", Font.BOLD, 40));
@@ -108,12 +108,12 @@ public class WorkerDashboardPanel extends JPanel implements MainFrame.Refreshabl
         scoreBar.setPreferredSize(new Dimension(0, 16));
         scoreBar.setBorderPainted(false);
 
-        JButton recalcBtn = createActionButton("🔄 Recalculate Score");
+        JButton recalcBtn = createActionButton("Recalculate Score");
         recalcBtn.addActionListener(e -> recalculate());
 
         JLabel formula = new JLabel("<html><center><font color='#64748b' size='2'>" +
-                "Formula: 0.4×Consistency + 0.35×Rating + 0.25×IncomeLevel<br>" +
-                "Scaled to 0–1000</font></center></html>", SwingConstants.CENTER);
+                "Formula: 0.4 * Consistency + 0.35 * Rating + 0.25 * IncomeLevel<br>" +
+                "Scaled to 0-1000</font></center></html>", SwingConstants.CENTER);
 
         card.add(scoreLabel); card.add(Box.createVerticalStrut(4));
         card.add(tierLabel); card.add(Box.createVerticalStrut(16));
@@ -154,7 +154,7 @@ public class WorkerDashboardPanel extends JPanel implements MainFrame.Refreshabl
             double totalHours    = logs.stream().mapToDouble(wh -> wh.getHoursLogged()).sum();
             long   totalGigs     = logs.size();
 
-            kpiLabel.setText(String.format("  📦 Total Gigs: %d   |   ⏱ Total Hours: %.1f   |   💵 Total Earnings: ₹%.2f",
+            kpiLabel.setText(String.format("  Total Gigs: %d   |   Total Hours Worked: %.1f hrs   |   Total Earnings: Rs. %.2f",
                     totalGigs, totalHours, totalEarnings));
         } catch (SQLException e) {
             kpiLabel.setText("  Could not load KPI data.");

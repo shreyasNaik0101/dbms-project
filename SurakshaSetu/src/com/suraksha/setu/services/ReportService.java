@@ -72,9 +72,9 @@ public class ReportService {
             while (rs.next()) {
                 rows.add(new Object[]{
                     rs.getString("month_year"),
-                    String.format("\u20B9%.2f", rs.getDouble("total_gross")),
-                    String.format("\u20B9%.2f", rs.getDouble("total_expenses")),
-                    String.format("\u20B9%.2f", rs.getDouble("net_savings"))
+                    String.format("Rs. %.2f", rs.getDouble("total_gross")),
+                    String.format("Rs. %.2f", rs.getDouble("total_expenses")),
+                    String.format("Rs. %.2f", rs.getDouble("net_savings"))
                 });
             }
             return rows;

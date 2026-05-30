@@ -30,7 +30,7 @@ public class FinancialHubPanel extends JPanel implements MainFrame.Refreshable {
     }
 
     private void buildUI() {
-        JLabel header = new JLabel("💰 Financial Hub");
+        JLabel header = new JLabel("Financial Hub");
         header.setFont(new Font("Segoe UI", Font.BOLD, 22));
         header.setForeground(Color.WHITE);
         add(header, BorderLayout.NORTH);
@@ -39,9 +39,9 @@ public class FinancialHubPanel extends JPanel implements MainFrame.Refreshable {
         statsPanel = new JPanel(new GridLayout(1, 4, 12, 0));
         statsPanel.setOpaque(false);
         // Placeholders, will be updated in loadData
-        statsPanel.add(createStatCard("Total Earnings", "₹0.00", new Color(74, 222, 128)));
+        statsPanel.add(createStatCard("Total Earnings", "Rs. 0.00", new Color(74, 222, 128)));
         statsPanel.add(createStatCard("Total Hours", "0.0", new Color(99, 179, 237)));
-        statsPanel.add(createStatCard("Net Income", "₹0.00", new Color(250, 204, 21)));
+        statsPanel.add(createStatCard("Net Income", "Rs. 0.00", new Color(250, 204, 21)));
         statsPanel.add(createStatCard("Active Months", "0", new Color(167, 139, 250)));
 
         // --- Monthly Summary Table ---
@@ -146,9 +146,9 @@ public class FinancialHubPanel extends JPanel implements MainFrame.Refreshable {
             double totalHours    = reportService.getTotalHours(logs);
 
             // Update cards
-            updateCard(0, String.format("₹%.2f", totalEarnings));
+            updateCard(0, String.format("Rs. %.2f", totalEarnings));
             updateCard(1, String.format("%.1f", totalHours));
-            updateCard(2, String.format("₹%.2f", net));
+            updateCard(2, String.format("Rs. %.2f", net));
             updateCard(3, String.valueOf(rows.size()));
 
             netIncomeLabel.setText("  * Data is calculated based on verified logs and operational expenses.");

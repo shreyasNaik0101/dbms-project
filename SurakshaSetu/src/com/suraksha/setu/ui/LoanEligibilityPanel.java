@@ -33,7 +33,7 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
     }
 
     private void buildUI() {
-        JLabel header = new JLabel("🏦 Loan Eligibility");
+        JLabel header = new JLabel("Loan Eligibility");
         header.setFont(new Font("Segoe UI", Font.BOLD, 22));
         header.setForeground(Color.WHITE);
         add(header, BorderLayout.NORTH);
@@ -73,7 +73,7 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
                     LoanEligibilityService.LoanProvider p = (LoanEligibilityService.LoanProvider) value;
                     boolean eligible = worker.getCurrentTrustScore() >= p.minTrustScore;
                     l.setBackground(isSelected ? new Color(51, 65, 85) : new Color(30, 41, 59));
-                    l.setText(p.providerName + " (Min Score: " + (int) p.minTrustScore + ")" + (eligible ? " ✓" : " — Need Score " + (int)p.minTrustScore));
+                    l.setText(p.providerName + " (Min Score: " + (int) p.minTrustScore + ")" + (eligible ? " [Eligible]" : " - Need Score " + (int)p.minTrustScore));
                     l.setForeground(eligible ? Color.WHITE : new Color(250, 204, 21));
                 }
                 return l;
@@ -110,7 +110,7 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
         form.add(fLabel("Loan Provider"), gbc);
         gbc.gridx=1; form.add(providerBox, gbc);
         gbc.gridx=0; gbc.gridy=1;
-        form.add(fLabel("Amount (₹)"), gbc);
+        form.add(fLabel("Amount (Rs.)"), gbc);
         gbc.gridx=1; form.add(amountField, gbc);
         gbc.gridx=0; gbc.gridy=2; gbc.gridwidth=2;
         form.add(applyBtn, gbc);
@@ -177,18 +177,18 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
         try {
             LoanEligibilityService.EligibilityResult result = loanService.checkEligibility(worker);
             if (result.eligible) {
-                statusLabel.setText("✅ Eligible! Max loan: ₹" + String.format("%.0f", result.maxLoanAmount));
+                statusLabel.setText("[ELIGIBLE] Max loan: Rs. " + String.format("%.0f", result.maxLoanAmount));
                 statusLabel.setForeground(new Color(74, 222, 128));
                 amountField.setText(String.format("%.0f", result.maxLoanAmount));
             } else {
-                statusLabel.setText("❌ Not eligible: " + result.reason);
+                statusLabel.setText("[INELIGIBLE] Not eligible: " + result.reason);
                 statusLabel.setForeground(new Color(248, 113, 113));
             }
         } catch (InsufficientEarningsException e) {
-            statusLabel.setText("❌ Income too low: " + e.getMessage());
+            statusLabel.setText("[INELIGIBLE] Income too low: " + e.getMessage());
             statusLabel.setForeground(new Color(248, 113, 113));
         } catch (Exception e) {
-            statusLabel.setText("⚠ Error: " + e.getMessage());
+            statusLabel.setText("[ERROR] Error: " + e.getMessage());
             statusLabel.setForeground(new Color(250, 204, 21));
         }
     }
@@ -252,7 +252,7 @@ public class LoanEligibilityPanel extends JPanel implements MainFrame.Refreshabl
             for (com.suraksha.setu.models.LoanApplication la : apps) {
                 tableModel.addRow(new Object[]{
                     la.getLoanId(), la.getProviderName(),
-                    String.format("₹%.2f", la.getLoanAmount()),
+                    String.format("Rs. %.2f", la.getLoanAmount()),
                     la.getStatus(), la.getAppliedDate()
                 });
             }

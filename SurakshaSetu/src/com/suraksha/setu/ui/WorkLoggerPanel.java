@@ -145,7 +145,7 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
             public void changedUpdate(javax.swing.event.DocumentEvent e) { validateEarnings(); }
         });
 
-        JButton logBtn = new JButton("➕ Log Today's Work");
+        JButton logBtn = new JButton("Log Today's Work");
         logBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         logBtn.setBackground(new Color(59, 130, 246));
         logBtn.setForeground(Color.WHITE);
@@ -162,13 +162,13 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
         gbc.gridx=1; formCard.add(platformBox, gbc);
         gbc.gridx=0; gbc.gridy=1; formCard.add(fieldLabel("Hours Worked"), gbc);
         gbc.gridx=1; formCard.add(hoursSpinner, gbc);
-        gbc.gridx=0; gbc.gridy=2; formCard.add(fieldLabel("Earnings (₹)"), gbc);
+        gbc.gridx=0; gbc.gridy=2; formCard.add(fieldLabel("Earnings (Rs.)"), gbc);
         gbc.gridx=1; formCard.add(earningsField, gbc);
         gbc.gridx=0; gbc.gridy=3; gbc.gridwidth=2; formCard.add(logBtn, gbc);
         gbc.gridy=4; formCard.add(statusLabel, gbc);
 
         // ── History Table ─────────────────────────────────────────────────
-        String[] cols = {"Date", "Platform", "Hours", "Earnings (₹)"};
+        String[] cols = {"Date", "Platform", "Hours", "Earnings (Rs.)"};
         tableModel = new javax.swing.table.DefaultTableModel(cols, 0) {
             public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -238,7 +238,7 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
 
         try {
             workHistoryDAO.save(wh);
-            statusLabel.setText("✓ Work log saved successfully!");
+            statusLabel.setText("[SUCCESS] Work log saved successfully!");
             statusLabel.setForeground(new Color(74, 222, 128));
             earningsField.setText("");
             
@@ -260,7 +260,7 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
             }
         } catch (Exception ex) {
             ex.printStackTrace();  // print full trace to console
-            statusLabel.setText("✗ Error: " + ex.getMessage());
+            statusLabel.setText("[ERROR] Error: " + ex.getMessage());
             statusLabel.setForeground(new Color(248, 113, 113));
         }
     }
@@ -284,7 +284,7 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
                 tableModel.addRow(new Object[]{
                     wh.getWorkDate(), wh.getPlatformName(),
                     String.format("%.1f", wh.getHoursLogged()),
-                    String.format("₹%.2f", wh.getEarnings())
+                    String.format("Rs. %.2f", wh.getEarnings())
                 });
             }
         } catch (Exception e) {
