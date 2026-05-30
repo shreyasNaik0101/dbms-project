@@ -130,6 +130,30 @@ public class TrustScoreDAO extends GenericDAO<TrustScoreAudit> {
         }
     }
 
+    /** Count how many distinct months a worker has any earnings recorded. */
+    public int getMonthCount(int workerId) throws SQLException {
+        String sql = "SELECT COUNT(*) AS cnt FROM monthly_earnings_summary WHERE worker_id = ? AND total_gross > 0";
+        Connection conn = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            conn = DatabaseConnection.getConnection();
+            ps   = conn.prepareStatement(sql);
+            ps.setInt(1, workerId);
+            rs = ps.executeQuery();
+            if (rs.next() && rs.getInt("cnt") > 0) return rs.getInt("cnt");
+            // Fallback: count distinct months in work_history
+            DatabaseConnection.closeQuietly(rs, ps, null);
+            sql = "SELECT COUNT(DISTINCT TO_CHAR(work_date, 'YYYY-MM')) AS cnt FROM work_history WHERE worker_id = ?";
+            ps = conn.prepareStatement(sql);
+            ps.setInt(1, workerId);
+            rs = ps.executeQuery();
+            return rs.next() ? rs.getInt("cnt") : 0;
+        } finally {
+            DatabaseConnection.closeQuietly(rs, ps, conn);
+        }
+    }
+
     /** Get monthly earnings stats for income stability calculation.
      *  Returns [minMonthly, avgMonthly] from monthly_earnings_summary.
      *  Falls back to computing directly from work_history if summary is empty.
