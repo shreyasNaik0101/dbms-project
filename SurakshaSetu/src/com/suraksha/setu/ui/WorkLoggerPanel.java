@@ -28,6 +28,7 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
     private JLabel                 statusLabel;
     private JTable                 historyTable;
     private javax.swing.table.DefaultTableModel tableModel;
+    private List<WorkHistory>      currentLogs;
 
     public WorkLoggerPanel(Worker worker) {
         this.worker = worker;
@@ -211,6 +212,20 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
         center.add(topPanel, BorderLayout.NORTH);
         center.add(scroll, BorderLayout.CENTER);
 
+        JButton deleteBtn = new JButton("Delete Selected Entry");
+        deleteBtn.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        deleteBtn.setBackground(new Color(239, 68, 68));
+        deleteBtn.setForeground(Color.WHITE);
+        deleteBtn.setFocusPainted(false);
+        deleteBtn.setBorderPainted(false);
+        deleteBtn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        deleteBtn.addActionListener(e -> deleteSelectedWork());
+
+        JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        btnPanel.setOpaque(false);
+        btnPanel.add(deleteBtn);
+        center.add(btnPanel, BorderLayout.SOUTH);
+
         add(center, BorderLayout.CENTER);
     }
 
@@ -279,8 +294,8 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
     private void loadHistory() {
         tableModel.setRowCount(0);
         try {
-            List<WorkHistory> logs = workHistoryDAO.findByWorkerId(worker.getWorkerId());
-            for (WorkHistory wh : logs) {
+            currentLogs = workHistoryDAO.findByWorkerId(worker.getWorkerId());
+            for (WorkHistory wh : currentLogs) {
                 tableModel.addRow(new Object[]{
                     wh.getWorkDate(), wh.getPlatformName(),
                     String.format("%.1f", wh.getHoursLogged()),
@@ -289,6 +304,55 @@ public class WorkLoggerPanel extends JPanel implements MainFrame.Refreshable {
             }
         } catch (Exception e) {
             System.err.println("Could not load history: " + e.getMessage());
+        }
+    }
+
+    private void deleteSelectedWork() {
+        int selectedRow = historyTable.getSelectedRow();
+        if (selectedRow == -1) {
+            JOptionPane.showMessageDialog(this, "Please select an entry from the table to delete.", "Select Entry", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        int modelRow = historyTable.convertRowIndexToModel(selectedRow);
+        if (currentLogs == null || modelRow < 0 || modelRow >= currentLogs.size()) {
+            return;
+        }
+
+        WorkHistory selectedWh = currentLogs.get(modelRow);
+
+        int choice = JOptionPane.showConfirmDialog(this,
+            String.format("Are you sure you want to delete the work log for %s on %s earning Rs. %.2f?",
+                selectedWh.getPlatformName(), selectedWh.getWorkDate(), selectedWh.getEarnings()),
+            "Confirm Delete", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+        if (choice == JOptionPane.YES_OPTION) {
+            try {
+                workHistoryDAO.delete(selectedWh.getEntryId());
+                statusLabel.setText("[SUCCESS] Entry deleted successfully!");
+                statusLabel.setForeground(new Color(74, 222, 128));
+
+                // Recalculate trust score immediately
+                try {
+                    com.suraksha.setu.services.TrustScoreService svc = new com.suraksha.setu.services.TrustScoreService();
+                    double newScore = svc.calculateAndUpdate(worker.getWorkerId());
+                    worker.setCurrentTrustScore(newScore);
+                } catch (Exception e) {
+                    System.err.println("Could not auto-recalculate trust score: " + e.getMessage());
+                }
+
+                loadHistory();
+
+                // Silently refresh all tabs in parent MainFrame
+                Window parent = SwingUtilities.getWindowAncestor(this);
+                if (parent instanceof MainFrame) {
+                    ((MainFrame) parent).refreshAllTabsSilent();
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                statusLabel.setText("[ERROR] Delete failed: " + ex.getMessage());
+                statusLabel.setForeground(new Color(248, 113, 113));
+            }
         }
     }
 

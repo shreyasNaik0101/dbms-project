@@ -234,15 +234,56 @@ public class WorkHistoryDAO extends GenericDAO<WorkHistory> {
 
     @Override
     public void delete(int entryId) throws SQLException {
-        String sql = "DELETE FROM work_history WHERE work_id=?";
+        WorkHistory wh = findById(entryId);
+        if (wh == null) return;
+
         Connection conn = null;
         PreparedStatement ps = null;
         try {
             conn = DatabaseConnection.getConnection();
-            ps   = conn.prepareStatement(sql);
+            conn.setAutoCommit(false);
+
+            // 1. Delete from work_history
+            ps = conn.prepareStatement("DELETE FROM work_history WHERE work_id = ?");
             ps.setInt(1, entryId);
             ps.executeUpdate();
+            ps.close();
+
+            // 2. Update monthly_earnings_summary
+            String monthYear = wh.getWorkDate().toLocalDate().getYear()
+                + "-" + String.format("%02d", wh.getWorkDate().toLocalDate().getMonthValue());
+
+            ps = conn.prepareStatement(
+                "SELECT summary_id, total_gross FROM monthly_earnings_summary "
+                + "WHERE worker_id = ? AND month_year = ?");
+            ps.setInt(1, wh.getWorkerId());
+            ps.setString(2, monthYear);
+            ResultSet existing = ps.executeQuery();
+            if (existing.next()) {
+                int summaryId = existing.getInt("summary_id");
+                double newGross = Math.max(0.0, existing.getDouble("total_gross") - wh.getEarnings());
+                existing.close();
+                ps.close();
+
+                ps = conn.prepareStatement(
+                    "UPDATE monthly_earnings_summary SET total_gross = ?, net_savings = ? - total_expenses "
+                    + "WHERE summary_id = ?");
+                ps.setDouble(1, newGross);
+                ps.setDouble(2, newGross);
+                ps.setInt(3, summaryId);
+                ps.executeUpdate();
+                ps.close();
+            } else {
+                existing.close();
+                ps.close();
+            }
+
+            conn.commit();
+        } catch (SQLException e) {
+            if (conn != null) { try { conn.rollback(); } catch (SQLException ignored) {} }
+            throw e;
         } finally {
+            if (conn != null) { try { conn.setAutoCommit(true); } catch (SQLException ignored) {} }
             DatabaseConnection.closeQuietly(ps, conn);
         }
     }
