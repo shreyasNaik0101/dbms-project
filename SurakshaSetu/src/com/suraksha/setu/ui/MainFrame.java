@@ -169,6 +169,16 @@ public class MainFrame extends JFrame {
         }
     }
 
+    /** Refresh all tabs silently (no popup). */
+    private void refreshAllTabsSilent() {
+        for (int i = 0; i < tabs.getTabCount(); i++) {
+            Component c = tabs.getComponentAt(i);
+            if (c instanceof Refreshable) {
+                ((Refreshable) c).refresh();
+            }
+        }
+    }
+
     private void recalculateTrustScore() {
         if (currentUser instanceof Worker) {
             Worker w = (Worker) currentUser;
@@ -177,10 +187,11 @@ public class MainFrame extends JFrame {
                         new com.suraksha.setu.services.TrustScoreService();
                 double score = svc.calculateAndUpdate(w.getWorkerId());
                 w.setCurrentTrustScore(score);
+                // Silently refresh all tabs so Dashboard score updates immediately
+                refreshAllTabsSilent();
                 JOptionPane.showMessageDialog(this,
                     String.format("Trust score updated: %.1f / 1000", score),
                     "Score Updated", JOptionPane.INFORMATION_MESSAGE);
-                refreshCurrentTab();
             } catch (Exception ex) {
                 JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(),
                     "Error", JOptionPane.ERROR_MESSAGE);

@@ -17,9 +17,10 @@ import java.util.List;
 public class WorkerDashboardPanel extends JPanel implements MainFrame.Refreshable {
 
     private Worker worker;
-    private JLabel nameLabel, idLabel, phoneLabel, scoreLabel, kpiLabel;
+    private JLabel nameLabel, idLabel, phoneLabel, scoreLabel, tierLabel, kpiLabel;
     private JProgressBar scoreBar;
     private final TrustScoreService trustScoreService = new TrustScoreService();
+    private final com.suraksha.setu.dao.WorkerDAO workerDAO = new com.suraksha.setu.dao.WorkerDAO();
 
     public WorkerDashboardPanel(Worker worker) {
         this.worker = worker;
@@ -95,7 +96,7 @@ public class WorkerDashboardPanel extends JPanel implements MainFrame.Refreshabl
         scoreLabel.setForeground(scoreColor(worker.getCurrentTrustScore()));
         scoreLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel tierLabel = new JLabel(getTier(worker.getCurrentTrustScore()));
+        tierLabel = new JLabel(getTier(worker.getCurrentTrustScore()));
         tierLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
         tierLabel.setForeground(scoreColor(worker.getCurrentTrustScore()));
         tierLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -111,7 +112,7 @@ public class WorkerDashboardPanel extends JPanel implements MainFrame.Refreshabl
         recalcBtn.addActionListener(e -> recalculate());
 
         JLabel formula = new JLabel("<html><center><font color='#64748b' size='2'>" +
-                "Formula: 0.4×Consistency + 0.3×Rating + 0.3×IncomeStability<br>" +
+                "Formula: 0.4×Consistency + 0.35×Rating + 0.25×IncomeLevel<br>" +
                 "Scaled to 0–1000</font></center></html>", SwingConstants.CENTER);
 
         card.add(scoreLabel); card.add(Box.createVerticalStrut(4));
@@ -126,10 +127,14 @@ public class WorkerDashboardPanel extends JPanel implements MainFrame.Refreshabl
         try {
             double newScore = trustScoreService.calculateAndUpdate(worker.getWorkerId());
             worker.setCurrentTrustScore(newScore);
+            // Update all score-related UI elements
             scoreLabel.setText(String.format("%.0f / 1000", newScore));
             scoreLabel.setForeground(scoreColor(newScore));
+            tierLabel.setText(getTier(newScore));
+            tierLabel.setForeground(scoreColor(newScore));
             scoreBar.setValue((int) newScore);
             scoreBar.setForeground(scoreColor(newScore));
+            // Refresh loan panel too if visible
             JOptionPane.showMessageDialog(this,
                 String.format("Trust score updated to: %.1f / 1000", newScore),
                 "Score Updated", JOptionPane.INFORMATION_MESSAGE);
@@ -158,9 +163,22 @@ public class WorkerDashboardPanel extends JPanel implements MainFrame.Refreshabl
 
     @Override
     public void refresh() {
-        if (worker != null) {
-            loadKPIs();
-        }
+        if (worker == null) return;
+        // Re-fetch worker from DB to get the latest trust score
+        try {
+            Worker fresh = workerDAO.findById(worker.getWorkerId());
+            if (fresh != null) {
+                worker.setCurrentTrustScore(fresh.getCurrentTrustScore());
+                double score = fresh.getCurrentTrustScore();
+                scoreLabel.setText(String.format("%.0f / 1000", score));
+                scoreLabel.setForeground(scoreColor(score));
+                tierLabel.setText(getTier(score));
+                tierLabel.setForeground(scoreColor(score));
+                scoreBar.setValue((int) score);
+                scoreBar.setForeground(scoreColor(score));
+            }
+        } catch (java.sql.SQLException ignored) {}
+        loadKPIs();
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
